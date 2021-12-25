@@ -1,7 +1,7 @@
 #[allow(dead_code)]
 pub fn break_single_byte_xor(ciphertext_bin: &[u8]) -> String {
     (0..255)
-        .map(|key| try_decode(key, &ciphertext_bin))
+        .map(|key| try_decode(key, ciphertext_bin))
         .map(|plain| (rate(&plain), plain))
         .max_by_key(|x| x.0)
         .unwrap()
@@ -18,10 +18,7 @@ fn try_decode(key: u8, ciphertext: &[u8]) -> String {
 }
 
 fn is_vowel(c: char) -> bool {
-    match c {
-        'a' | 'e' | 'i' | 'o' | 'u' | 'y' => true,
-        _ => false,
-    }
+    matches!(c, 'a' | 'e' | 'i' | 'o' | 'u' | 'y')
 }
 
 #[cfg(test)]
