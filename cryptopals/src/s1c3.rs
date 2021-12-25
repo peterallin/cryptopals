@@ -8,13 +8,13 @@ pub fn break_single_byte_xor(ciphertext_bin: &[u8]) -> String {
         .1
 }
 
+pub fn rate(message: &str) -> usize {
+    message.matches(is_vowel).count() * 100 / message.len()
+}
+
 fn try_decode(key: u8, ciphertext: &[u8]) -> String {
     let x: Vec<_> = ciphertext.iter().map(|c| c ^ key).collect();
     String::from_utf8_lossy(&x).to_string()
-}
-
-fn rate(message: &str) -> usize {
-    message.matches(is_vowel).count() * 100 / message.len()
 }
 
 fn is_vowel(c: char) -> bool {
