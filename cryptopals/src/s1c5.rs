@@ -1,6 +1,6 @@
 
-pub fn repeating_key_xor(plain_text: &str, key: &str) -> Vec<u8> {
-    plain_text
+pub fn repeating_key_xor(plaintext: &str, key: &str) -> Vec<u8> {
+    plaintext
         .as_bytes()
         .iter()
         .zip(key.as_bytes().iter().cycle())
