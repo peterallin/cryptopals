@@ -33,6 +33,19 @@ pub fn find_key_length_candidates(ciphertext: &[u8], number_of_candidates: usize
         .collect()
 }
 
+pub fn transpose_blocks(ciphertext: &[u8], keysize: usize) -> Vec<Vec<u8>> {
+    let mut result = Vec::<Vec<u8>>::new();
+    result.resize(keysize, vec![]);
+    for block in ciphertext.chunks(keysize) {
+        dbg!(block);
+        for (index, c) in block.iter().enumerate() {
+            dbg!(index);
+            result[index].push(*c);
+        }
+    }
+    result
+}
+
 fn multi_hamming(data: &[&[u8]]) -> Vec<usize> {
     let len = data[0].len();
     let mut data = data.iter();
@@ -84,5 +97,24 @@ mod test {
             37,
             hamming_distance("this is a test".as_bytes(), "wokka wokka!!!".as_bytes())
         )
+    }
+
+    #[test]
+    fn test_transpose_blocks() {
+        let input = vec![1, 2, 3, 4, 5, 6, 7, 8, 9]; // 1234 5678 9
+        let transposed = transpose_blocks(&input, 3);
+        assert_eq!(transposed[0], vec![1, 4, 7]);
+        assert_eq!(transposed[1], vec![2, 5, 8]);
+        assert_eq!(transposed[2], vec![3, 6, 9]);
+    }
+
+    #[test]
+    fn test_transpose_blocks_length_doesnt_match() {
+        let input = vec![1, 2, 3, 4, 5, 6, 7, 8, 9]; // 1234 5678 9
+        let transposed = transpose_blocks(&input, 4);
+        assert_eq!(transposed[0], vec![1, 5, 9]);
+        assert_eq!(transposed[1], vec![2, 6]);
+        assert_eq!(transposed[2], vec![3, 7]);
+        assert_eq!(transposed[3], vec![4, 8]);
     }
 }
