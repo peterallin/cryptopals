@@ -14,9 +14,7 @@ pub fn simple_xy(title: &str, filename: &str, xy_data: &[(usize, usize)]) {
         .unwrap()
         + 10;
 
-    let ks_scores = xy_data
-        .iter()
-        .map(|(ks, sc)| (*ks as f32, *sc as f32));
+    let ks_scores = xy_data.iter().map(|(ks, sc)| (*ks as f32, *sc as f32));
 
     let root = BitMapBackend::new(filename, (1600, 1200)).into_drawing_area();
     root.fill(&WHITE).unwrap();

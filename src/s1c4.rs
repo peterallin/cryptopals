@@ -5,7 +5,7 @@ pub fn detect_single_byte_xor(candidates: &[Vec<u8>]) -> String {
     candidates
         .iter()
         .map(|x| break_single_byte_xor(x))
-        .map(|x| (rate(&x), x))
+        .map(|(_key, plain)| (rate(&plain), plain))
         .max_by_key(|x| x.0)
         .unwrap()
         .1

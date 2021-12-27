@@ -1,13 +1,29 @@
 #[cfg(debug_assertions)]
 use crate::plot;
 
-const MAX_KEY_SIZE: usize = 50; // The maximum key size we'll attempt
-const CHUNKS_TO_COMPARE_AT_A_TIME: usize = 5;
+use crate::data::{Ciphertext, Key, Plaintext};
+use crate::s1c3::break_single_byte_xor;
+use crate::s1c5::repeating_key_xor_decrypt;
 
-#[allow(dead_code)]
-pub fn find_key_length_candidates(ciphertext: &[u8], number_of_candidates: usize) -> Vec<usize> {
+const MAX_KEY_SIZE: usize = 60; // The maximum key size we'll attempt
+const CHUNKS_TO_COMPARE_AT_A_TIME: usize = 10;
+
+pub fn break_repeating_key_xor(ciphertext: &Ciphertext) -> (Key, Plaintext) {
+    let key_length_candidates = dbg!(find_key_length_candidates(ciphertext, 10));
+    let chosen_key_length = dbg!(key_length_candidates[0]);
+    let transposed_blocks = transpose_blocks(&ciphertext.0, chosen_key_length);
+    let key: Key = transposed_blocks
+        .iter()
+        .map(|tb| break_single_byte_xor(tb))
+        .map(|(key, _plain)| key)
+        .collect();
+    let plaintext = repeating_key_xor_decrypt(ciphertext, &key);
+    (key, plaintext)
+}
+
+fn find_key_length_candidates(ciphertext: &Ciphertext, number_of_candidates: usize) -> Vec<usize> {
     let mut ks_scores: Vec<_> = (2..MAX_KEY_SIZE)
-        .map(|ks| ciphertext.chunks(ks).take(CHUNKS_TO_COMPARE_AT_A_TIME))
+        .map(|ks| ciphertext.0.chunks(ks).take(CHUNKS_TO_COMPARE_AT_A_TIME))
         .map(|c| {
             let v: Vec<_> = c.collect();
             let len = v[0].len();
@@ -33,13 +49,11 @@ pub fn find_key_length_candidates(ciphertext: &[u8], number_of_candidates: usize
         .collect()
 }
 
-pub fn transpose_blocks(ciphertext: &[u8], keysize: usize) -> Vec<Vec<u8>> {
+fn transpose_blocks(ciphertext: &[u8], keysize: usize) -> Vec<Vec<u8>> {
     let mut result = Vec::<Vec<u8>>::new();
     result.resize(keysize, vec![]);
     for block in ciphertext.chunks(keysize) {
-        dbg!(block);
         for (index, c) in block.iter().enumerate() {
-            dbg!(index);
             result[index].push(*c);
         }
     }
@@ -76,19 +90,19 @@ fn differing_bits(a: u8, b: u8) -> usize {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::s1c5::repeating_key_xor;
+    use crate::s1c5::repeating_key_xor_encrypt;
+    use std::str::FromStr;
 
     #[test]
     fn test_find_key_length() {
-        let key = "{}/!!@#$axcss";
-        dbg!(key.len());
-        let plaintext = "This is my testing plaintext which is a very plain text but also a plaintext which is used to test my code.";
-        let ciphertext = repeating_key_xor(plaintext, key);
+        let key = Key::from_str("{}/!!@#$axcss").unwrap();
+        let plaintext = Plaintext::from_str("This is my testing plaintext which is a very plain text but also a plaintext which is used to test my code.").unwrap();
+        let ciphertext = repeating_key_xor_encrypt(&plaintext, &key);
         let number_of_candidates = 2;
         let found_candidates = find_key_length_candidates(&ciphertext, number_of_candidates);
         dbg!(&found_candidates);
         assert_eq!(found_candidates.len(), number_of_candidates);
-        assert!(found_candidates.contains(&key.len()));
+        assert!(found_candidates.contains(&key.0.len()));
     }
 
     #[test]
@@ -101,7 +115,7 @@ mod test {
 
     #[test]
     fn test_transpose_blocks() {
-        let input = vec![1, 2, 3, 4, 5, 6, 7, 8, 9]; // 1234 5678 9
+        let input = vec![1, 2, 3, 4, 5, 6, 7, 8, 9];
         let transposed = transpose_blocks(&input, 3);
         assert_eq!(transposed[0], vec![1, 4, 7]);
         assert_eq!(transposed[1], vec![2, 5, 8]);
@@ -110,11 +124,22 @@ mod test {
 
     #[test]
     fn test_transpose_blocks_length_doesnt_match() {
-        let input = vec![1, 2, 3, 4, 5, 6, 7, 8, 9]; // 1234 5678 9
+        let input = vec![1, 2, 3, 4, 5, 6, 7, 8, 9];
         let transposed = transpose_blocks(&input, 4);
         assert_eq!(transposed[0], vec![1, 5, 9]);
         assert_eq!(transposed[1], vec![2, 6]);
         assert_eq!(transposed[2], vec![3, 7]);
         assert_eq!(transposed[3], vec![4, 8]);
+    }
+
+    #[test]
+    fn test_break_repeating_key_xor() {
+        let ciphertext_base64: String = include_str!("6.txt")
+            .chars()
+            .filter(|c| *c != '\n')
+            .collect();
+        let ciphertext = Ciphertext(base64::decode(ciphertext_base64).unwrap());
+        let (key, _plaintext) = break_repeating_key_xor(&ciphertext);
+        assert_eq!("Terminator X: Bring the noise", key.to_string());
     }
 }

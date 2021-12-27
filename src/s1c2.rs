@@ -6,10 +6,7 @@ pub fn fixed_xor(l: &[u8], r: &[u8]) -> Vec<u8> {
         panic!("The inputs to fixed xor should have the same size");
     }
 
-    l.iter()
-        .zip(r.iter())
-        .map(|(l, r)| l ^ r)
-        .collect()
+    l.iter().zip(r.iter()).map(|(l, r)| l ^ r).collect()
 }
 
 #[allow(dead_code)]
