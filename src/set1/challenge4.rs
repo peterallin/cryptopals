@@ -1,4 +1,4 @@
-use crate::s1c3::{break_single_byte_xor, rate};
+use crate::set1::challenge3::{break_single_byte_xor, rate};
 
 #[allow(dead_code)]
 pub fn detect_single_byte_xor(candidates: &[Vec<u8>]) -> String {

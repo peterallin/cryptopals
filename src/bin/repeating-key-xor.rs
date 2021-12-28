@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use anyhow::Result;
 use cryptopals::data::{Key, Plaintext};
-use cryptopals::s1c5::repeating_key_xor_encrypt;
+use cryptopals::set1::challenge5::repeating_key_xor_encrypt;
 use structopt::StructOpt;
 
 #[derive(StructOpt)]

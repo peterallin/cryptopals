@@ -2,8 +2,8 @@
 use crate::plot;
 
 use crate::data::{Ciphertext, Key, Plaintext};
-use crate::s1c3::break_single_byte_xor;
-use crate::s1c5::repeating_key_xor_decrypt;
+use crate::set1::challenge3::break_single_byte_xor;
+use crate::set1::challenge5::repeating_key_xor_decrypt;
 
 const MAX_KEY_SIZE: usize = 60; // The maximum key size we'll attempt
 const CHUNKS_TO_COMPARE_AT_A_TIME: usize = 10;
@@ -90,7 +90,7 @@ fn differing_bits(a: u8, b: u8) -> usize {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::s1c5::repeating_key_xor_encrypt;
+    use crate::set1::challenge5::repeating_key_xor_encrypt;
     use std::str::FromStr;
 
     #[test]
