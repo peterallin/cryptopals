@@ -6,7 +6,7 @@ use block_modes::{BlockMode, Ecb};
 type Aes128Ecb = Ecb<Aes128, ZeroPadding>;
 
 pub fn aes128_ecb_decrypt(ciphertext: &Ciphertext, key: &Key) -> Result<Plaintext> {
-    let cipher = Aes128Ecb::new_from_slices(&key.0, &vec![])?;
+    let cipher = Aes128Ecb::new_from_slices(&key.0, &[])?;
     let plaintext = cipher.decrypt_vec(&ciphertext.0)?;
     Ok(Plaintext(plaintext))
 }
