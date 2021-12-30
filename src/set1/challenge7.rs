@@ -1,9 +1,10 @@
 use crate::data::{Ciphertext, Key, Plaintext};
 use aes::Aes128;
 use anyhow::Result;
-use block_modes::block_padding::ZeroPadding;
+use block_modes::block_padding::NoPadding;
 use block_modes::{BlockMode, Ecb};
-type Aes128Ecb = Ecb<Aes128, ZeroPadding>;
+
+pub type Aes128Ecb = Ecb<Aes128, NoPadding>;
 
 pub fn aes128_ecb_decrypt(ciphertext: &Ciphertext, key: &Key) -> Result<Plaintext> {
     let cipher = Aes128Ecb::new_from_slices(&key.0, &[])?;

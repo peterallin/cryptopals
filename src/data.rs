@@ -1,7 +1,13 @@
 use std::convert::Infallible;
 
 pub struct Key(pub Vec<u8>);
+
+pub struct Iv(pub Vec<u8>);
+
+#[derive(Debug)]
 pub struct Plaintext(pub Vec<u8>);
+
+#[derive(Debug)]
 pub struct Ciphertext(pub Vec<u8>);
 
 impl std::string::ToString for Key {
