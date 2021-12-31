@@ -2,9 +2,11 @@ use aes::cipher::{BlockDecryptMut, BlockEncryptMut};
 use aes::NewBlockCipher;
 use anyhow::Result;
 
+
 use crate::data::{Ciphertext, Iv, Key, Plaintext};
 use crate::set1::challenge2::fixed_xor;
 use crate::set2::challenge9::pkcs7_pad;
+
 
 pub fn aes128_cbc_decrypt(ciphertext: &Ciphertext, key: &Key, mut iv: Iv) -> Result<Plaintext> {
     let mut plaintext: Vec<u8> = vec![];
@@ -20,28 +22,26 @@ pub fn aes128_cbc_decrypt(ciphertext: &Ciphertext, key: &Key, mut iv: Iv) -> Res
     Ok(Plaintext(plaintext)) // TODO: de-pad
 }
 
-
 pub fn aes128_cbc_encrypt(plaintext: &Plaintext, key: &Key, mut iv: Iv) -> Result<Ciphertext> {
     let plaintext = pkcs7_pad(&plaintext, 16);
-    let mut ciphertext : Vec<u8> = vec![];
+    let mut ciphertext: Vec<u8> = vec![];
     let mut cipher = aes::Aes128::new_from_slice(&key.0).unwrap();
     for plaintext_chunk in plaintext.0.chunks(16) {
-        let xored_chunk  = fixed_xor(plaintext_chunk, &iv.0);
+        let xored_chunk = fixed_xor(plaintext_chunk, &iv.0);
         let mut chunk = *aes::cipher::generic_array::GenericArray::from_slice(&xored_chunk);
         cipher.encrypt_block_mut(&mut chunk);
         iv.0 = chunk.to_vec();
         ciphertext.extend(&chunk);
     }
-
     Ok(Ciphertext(ciphertext))
 }
 
 
 #[cfg(test)]
 mod test {
+    use super::*;
     use std::str::FromStr;
 
-    use super::*;
 
     #[test]
     fn test_aes128_cbc_decrypt() {

@@ -2,8 +2,8 @@ use crate::data::Plaintext;
 
 pub fn pkcs7_pad(input: &Plaintext, block_size: usize) -> Plaintext {
     let mut data = input.0.clone();
-    let number_of_blocks = dbg!((data.len() + block_size - 1) / block_size);
-    let bytes_to_add = dbg!(number_of_blocks * block_size - data.len());
+    let number_of_blocks = (data.len() + block_size - 1) / block_size;
+    let bytes_to_add = number_of_blocks * block_size - data.len();
     data.resize(data.len() + bytes_to_add, bytes_to_add as u8);
     Plaintext(data)
 }

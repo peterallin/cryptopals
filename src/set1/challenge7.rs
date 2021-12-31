@@ -1,14 +1,14 @@
 use crate::data::{Ciphertext, Key, Plaintext};
 use aes::Aes128;
-use anyhow::Result;
-use block_modes::block_padding::NoPadding;
+use anyhow::{Context, Result};
+use block_modes::block_padding::{Pkcs7};
 use block_modes::{BlockMode, Ecb};
 
-pub type Aes128Ecb = Ecb<Aes128, NoPadding>;
+pub type Aes128Ecb = Ecb<Aes128, Pkcs7>;
 
 pub fn aes128_ecb_decrypt(ciphertext: &Ciphertext, key: &Key) -> Result<Plaintext> {
-    let cipher = Aes128Ecb::new_from_slices(&key.0, &[])?;
-    let plaintext = cipher.decrypt_vec(&ciphertext.0)?;
+    let cipher = Aes128Ecb::new_from_slices(&key.0, &[]).context("Creating cipher")?;
+    let plaintext = cipher.decrypt_vec(&ciphertext.0).context("Decrypting an ECB block")?;
     Ok(Plaintext(plaintext))
 }
 

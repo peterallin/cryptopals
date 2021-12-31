@@ -15,7 +15,7 @@ fn find_ciphertext_with_most_repetitions(
         .0
 }
 
-fn count_repetitions(block_size: usize, data: &[u8]) -> HashMap<&[u8], usize> {
+pub fn count_repetitions(block_size: usize, data: &[u8]) -> HashMap<&[u8], usize> {
     let mut result = HashMap::new();
     for c in data.chunks(block_size) {
         *result.entry(c).or_insert(0) += 1;
